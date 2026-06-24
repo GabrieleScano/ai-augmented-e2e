@@ -1,0 +1,41 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build and test outputs
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+dist/
+build/
+
+# Local env files / secrets
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Diagnostic reports and cache
+.eslintcache
+*.tsbuildinfo
+
+# Project-specific generated files
+generated-tests.json
