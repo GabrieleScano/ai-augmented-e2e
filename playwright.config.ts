@@ -18,12 +18,14 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Limit workers on CI for stable, reproducible runs. */
   workers: process.env.CI ? 2 : undefined,
-  /* Reporters: list for local readability, HTML + Allure for artifacts. */
-  reporter: [
-    ['list'],
-    ['html', { open: 'never' }],
-    ['allure-playwright'],
-  ],
+  /*
+   * Reporters: locally, list + HTML + Allure. On CI we emit a `blob` report
+   * per browser so the matrix shards can be merged into a single HTML report
+   * and published to GitHub Pages.
+   */
+  reporter: process.env.CI
+    ? [['blob'], ['allure-playwright']]
+    : [['list'], ['html', { open: 'never' }], ['allure-playwright']],
   /* Shared settings for all projects. */
   use: {
     baseURL: 'https://www.saucedemo.com',
