@@ -1,6 +1,10 @@
 import { writeFileSync } from 'node:fs';
 import { generateTestCases } from './client.js';
+import { loadEnv } from './load-env.js';
 import type { UserStory } from './types.js';
+
+// Load ANTHROPIC_API_KEY from a local .env file when present.
+loadEnv();
 
 /**
  * Example story used to demonstrate the generator.
