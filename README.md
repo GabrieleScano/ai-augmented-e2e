@@ -29,13 +29,18 @@ It demonstrates a complete QA automation workflow:
 
 ```
 tests/
-  e2e/            # specs grouped by feature
+  e2e/            # specs grouped by feature (browser projects)
+  unit/           # pure-logic unit tests (AI parser, no browser)
   pages/          # Page Objects (login, inventory, checkout)
   fixtures/       # custom fixtures + centralized test data
 src/
   ai/             # AI test-generation module
 .github/workflows # CI pipeline
 ```
+
+Playwright is configured with four projects: a browser-less `unit` project and
+`chromium` / `firefox` / `webkit` for E2E. Run a single one with
+`npx playwright test --project=unit` (or `chromium`, etc.).
 
 ## Getting started
 
@@ -66,6 +71,8 @@ Given an acceptance-criteria set, the module outputs:
 - **Test cases** — positive, negative, edge and boundary scenarios with steps and expected results, written to `generated-tests.json`.
 
 This mirrors a shift-left practice: surfacing requirement issues *before* implementation, and accelerating test design without replacing engineering judgement.
+
+The model output is never trusted blindly: `parseGenerationResult` strips markdown fences and validates the JSON shape (required fields, enum values) before anything downstream uses it, and that parser is covered by the `unit` test project.
 
 ## Design principles
 

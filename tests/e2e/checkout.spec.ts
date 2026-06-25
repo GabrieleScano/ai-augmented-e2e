@@ -24,4 +24,17 @@ test.describe('Shopping cart and checkout', () => {
     await loggedIn.addProductToCart(products.bikeLight.name);
     await loggedIn.expectCartCount(2);
   });
+
+  test('should require customer information before continuing', async ({
+    loggedIn,
+    checkoutPage,
+  }) => {
+    await loggedIn.addProductToCart(products.backpack.name);
+    await loggedIn.openCart();
+    await checkoutPage.startCheckout();
+
+    // Continue without filling the form.
+    await checkoutPage.continue();
+    await checkoutPage.expectError('First Name is required');
+  });
 });

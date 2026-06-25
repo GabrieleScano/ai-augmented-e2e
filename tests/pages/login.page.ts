@@ -24,6 +24,12 @@ export class LoginPage {
     await expect(this.loginButton).toBeVisible();
   }
 
+  /** Assert we are on the login screen (e.g. after a logout or auth redirect). */
+  async expectLoaded(): Promise<void> {
+    await expect(this.page).toHaveURL(/saucedemo\.com\/?$/);
+    await expect(this.loginButton).toBeVisible();
+  }
+
   async login(username: string, password: string): Promise<void> {
     await this.usernameInput.fill(username);
     await this.passwordInput.fill(password);

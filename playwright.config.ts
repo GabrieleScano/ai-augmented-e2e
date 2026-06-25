@@ -9,7 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './tests/e2e',
+  testDir: './tests',
   /* Run tests within a file in parallel. */
   fullyParallel: true,
   /* Fail the build on CI if test.only is left in the source. */
@@ -40,18 +40,26 @@ export default defineConfig({
   expect: {
     timeout: 7_000,
   },
-  /* Cross-browser coverage. */
   projects: [
+    /* Pure-logic unit tests (AI response parser) — no browser. */
+    {
+      name: 'unit',
+      testMatch: /tests\/unit\/.*\.spec\.ts/,
+    },
+    /* Cross-browser E2E coverage. */
     {
       name: 'chromium',
+      testMatch: /tests\/e2e\/.*\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'firefox',
+      testMatch: /tests\/e2e\/.*\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
+      testMatch: /tests\/e2e\/.*\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
   ],

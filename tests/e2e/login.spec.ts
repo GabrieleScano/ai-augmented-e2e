@@ -19,19 +19,28 @@ test.describe('Authentication', () => {
     await loginPage.expectError('locked out');
   });
 
-  test('should reject login when the password is missing', async ({
+  test('should block direct access to a protected page when not logged in', async ({
+    page,
     loginPage,
   }) => {
-    await loginPage.goto();
-    await loginPage.login(users.standard.username, '');
-    await loginPage.expectError('Password is required');
+    await page.goto('/inventory.html');
+    await loginPage.expectError("You can only access '/inventory.html'");
   });
 
-  test('should reject login with invalid credentials', async ({
-    loginPage,
-  }) => {
-    await loginPage.goto();
-    await loginPage.login('ghost_user', 'wrong_password');
-    await loginPage.expectError('do not match');
-  });
+  // Data-driven: one behaviour ("invalid input is rejected with the right
+  // message") exercised across several input combinations.
+  const invalidCases = [
+    { name: 'wrong username and password', username: 'ghost_user', password: 'nope', error: 'do not match' },
+    { name: 'missing username', username: '', password: users.standard.password, error: 'Username is required' },
+    { name: 'missing password', username: users.standard.username, password: '', error: 'Password is required' },
+    { name: 'empty form', username: '', password: '', error: 'Username is required' },
+  ];
+
+  for (const tc of invalidCases) {
+    test(`should reject login: ${tc.name}`, async ({ loginPage }) => {
+      await loginPage.goto();
+      await loginPage.login(tc.username, tc.password);
+      await loginPage.expectError(tc.error);
+    });
+  }
 });
