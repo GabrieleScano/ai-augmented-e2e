@@ -21,11 +21,21 @@ export default defineConfig({
   /*
    * Reporters: locally, list + HTML + Allure. On CI we emit a `blob` report
    * per browser so the matrix shards can be merged into a single HTML report
-   * and published to GitHub Pages.
+   * and published to GitHub Pages. In both cases the test-triage-kit reporter
+   * writes a normalized triage-input.json consumed by `npx triage`.
    */
   reporter: process.env.CI
-    ? [['blob'], ['allure-playwright']]
-    : [['list'], ['html', { open: 'never' }], ['allure-playwright']],
+    ? [
+        ['blob'],
+        ['allure-playwright'],
+        ['test-triage-kit/reporter', { outputFile: 'triage-input.json' }],
+      ]
+    : [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['allure-playwright'],
+        ['test-triage-kit/reporter', { outputFile: 'triage-input.json' }],
+      ],
   /* Shared settings for all projects. */
   use: {
     baseURL: 'https://www.saucedemo.com',

@@ -48,6 +48,20 @@ jobs:
       - name: Run E2E tests
         run: npx playwright test --project=${{ matrix.browser }}
 
+      # Classify any failures with test-triage-kit (rule engine + fingerprint
+      # dedup + flaky detection) and publish the verdicts as an artifact.
+      - name: Triage failures
+        if: ${{ !cancelled() }}
+        run: npx triage triage-input.json --out triage-output
+
+      - name: Upload triage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-report-${{ matrix.browser }}
+          path: triage-output/
+          retention-days: 14
+
       - name: Upload blob report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4

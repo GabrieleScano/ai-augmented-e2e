@@ -14,6 +14,7 @@ It demonstrates a complete QA automation workflow:
 - **Maintainable design** — Page Object Model, custom fixtures, centralized test data, semantic locators, and web-first assertions (no fixed waits).
 - **Cross-browser CI** — Chromium, Firefox and WebKit on every push via GitHub Actions, with HTML reports as artifacts.
 - **AI-augmented test design** — a module that takes a user story + acceptance criteria and returns structured test cases plus shift-left observations (ambiguities, missing edge cases).
+- **Automated failure triage** — every run feeds [test-triage-kit](https://github.com/GabrieleScano/test-triage-kit) through its custom reporter; CI classifies failures (bug / flaky / infrastructure), deduplicates them by root-cause fingerprint, and publishes the triage report as an artifact.
 
 ## Tech stack
 
@@ -22,6 +23,7 @@ It demonstrates a complete QA automation workflow:
 | Runner | Playwright Test |
 | Language | TypeScript (strict) |
 | Reporting | Playwright HTML, Allure |
+| Failure triage | [test-triage-kit](https://github.com/GabrieleScano/test-triage-kit) |
 | CI | GitHub Actions |
 | AI | Anthropic Messages API |
 

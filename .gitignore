@@ -39,3 +39,5 @@ Thumbs.db
 
 # Project-specific generated files
 generated-tests.json
+triage-input.json
+triage-output/

@@ -12,13 +12,22 @@
     "allure:open": "allure open allure-report",
     "ai:generate": "tsx src/ai/generate-tests.ts"
   },
-  "keywords": ["qa", "playwright", "typescript", "e2e", "automation", "ai", "testing"],
+  "keywords": [
+    "qa",
+    "playwright",
+    "typescript",
+    "e2e",
+    "automation",
+    "ai",
+    "testing"
+  ],
   "author": "Gabriele Scano",
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "@types/node": "^22.7.0",
     "allure-playwright": "^3.0.0",
+    "test-triage-kit": "github:GabrieleScano/test-triage-kit",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
   }
