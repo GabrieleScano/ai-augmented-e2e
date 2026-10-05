@@ -21,7 +21,7 @@ export class InventoryPage {
     this.itemNames = page.locator('.inventory_item_name');
     this.itemPrices = page.locator('.inventory_item_price');
     this.menuButton = page.getByRole('button', { name: 'Open Menu' });
-    this.logoutLink = page.getByRole('link', { name: 'Logout' });
+    this.logoutLink = page.getByRole('button', { name: 'Logout' });
   }
 
   async expectLoaded(): Promise<void> {
