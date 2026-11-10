@@ -30,7 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.61.0-noble
-      options: --user 1001
     env:
       HOME: /root
     steps:

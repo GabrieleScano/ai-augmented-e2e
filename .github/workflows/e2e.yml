@@ -38,13 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.61.0-noble
-      options: --user 1001
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      HOME: /root # Firefox refuses to start when HOME is owned by another user
+      HOME: /root # run as the image's root user; Firefox needs a HOME it owns
       BLOB_NAME: saucedemo-${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +77,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.61.0-noble
-      options: --user 1001
     env:
       HOME: /root
       BLOB_NAME: menu-escolar
