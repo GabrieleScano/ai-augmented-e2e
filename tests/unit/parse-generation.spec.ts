@@ -22,29 +22,29 @@ const validPayload = JSON.stringify({
   ],
 });
 
-test('parses a well-formed response', () => {
+test('AI-UNIT-001 parses a well-formed response', () => {
   const result = parseGenerationResult(validPayload, 'AUTH-12');
   expect(result.storyId).toBe('AUTH-12');
   expect(result.observations).toHaveLength(1);
   expect(result.testCases[0]?.id).toBe('TC-1');
 });
 
-test('strips markdown code fences before parsing', () => {
+test('AI-UNIT-002 strips markdown code fences before parsing', () => {
   const fenced = '```json\n' + validPayload + '\n```';
   const result = parseGenerationResult(fenced, 'AUTH-12');
   expect(result.testCases).toHaveLength(1);
 });
 
-test('throws on invalid JSON', () => {
+test('AI-UNIT-003 throws on invalid JSON', () => {
   expect(() => parseGenerationResult('not json', 'X')).toThrow(/not valid JSON/);
 });
 
-test('throws when observations is not an array of strings', () => {
+test('AI-UNIT-004 throws when observations is not an array of strings', () => {
   const bad = JSON.stringify({ observations: 'nope', testCases: [] });
   expect(() => parseGenerationResult(bad, 'X')).toThrow(/observations/);
 });
 
-test('throws on an invalid test-case type enum', () => {
+test('AI-UNIT-005 throws on an invalid test-case type enum', () => {
   const bad = JSON.stringify({
     observations: [],
     testCases: [
@@ -62,7 +62,7 @@ test('throws on an invalid test-case type enum', () => {
   expect(() => parseGenerationResult(bad, 'X')).toThrow(/type must be one of/);
 });
 
-test('throws when a test case is missing a required field', () => {
+test('AI-UNIT-006 throws when a test case is missing a required field', () => {
   const bad = JSON.stringify({
     observations: [],
     testCases: [{ id: 'TC-1', type: 'positive', priority: 'low', steps: [], expectedResult: 'r' }],
