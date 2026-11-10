@@ -8,7 +8,8 @@ import { onlyInBaselineEnvironment } from '../shared/visual.js';
  *  - clock pinned (fixtures.ts), so "today", the week bar and the calendar never move;
  *  - menu data mocked via page.route (menu-data.ts), so dishes never change;
  *  - animations disabled and web fonts awaited before each shot;
- *  - what can still vary is masked: the weekend toast picks a random message.
+ *  - what still varies is masked, and only where it is actually on screen:
+ *    on a weekend the toast shows one of several random messages (MENU-VIS-006).
  *
  * Baselines: tests/menu-escolar/__screenshots__/, generated in the official
  * Playwright Docker image (see README).
@@ -20,7 +21,7 @@ test.describe('Visual regression', () => {
   test('MENU-VIS-001 home, basal menu of today', async ({ menu, page }) => {
     await menu.goto();
     await menu.settle();
-    await expect(page).toHaveScreenshot('home.png', { mask: [menu.weekendToast] });
+    await expect(page).toHaveScreenshot('home.png');
   });
 
   test('MENU-VIS-002 menu-type sheet', async ({ menu, page }) => {
@@ -51,7 +52,19 @@ test.describe('Visual regression', () => {
       await menu.goto();
       await page.getByRole('dialog', { name: 'Hola, famílies!' }).waitFor();
       await menu.settle();
-      await expect(page).toHaveScreenshot('onboarding.png', { mask: [menu.cookieBanner] });
+      await expect(page).toHaveScreenshot('onboarding.png');
+    });
+  });
+
+  test.describe('on a weekend', () => {
+    test.use({ today: '2026-11-07T10:00:00+01:00' }); // Saturday
+
+    test('MENU-VIS-006 weekend home, random greeting masked', async ({ menu, page }) => {
+      await menu.goto();
+      await expect(menu.weekendToast).toBeVisible();
+      await menu.settle();
+      // The greeting is picked with Math.random(): mask the text, keep the rest of the screen.
+      await expect(page).toHaveScreenshot('home-weekend.png', { mask: [menu.weekendToast] });
     });
   });
 });

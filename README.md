@@ -12,7 +12,7 @@ A **multi-SUT** end-to-end framework built with **Playwright + TypeScript**: fun
 | SUT | What it is | Environment | Projects | Coverage | Safety constraints |
 |-----|------------|-------------|----------|----------|--------------------|
 | **saucedemo** | [SauceDemo](https://www.saucedemo.com), a public demo e-commerce site | Desktop | `saucedemo-chromium`, `-firefox`, `-webkit` | 16 functional · 2 visual · 2 a11y | none (built for automation practice) |
-| **menu-escolar** | [Menú Escolar · Poble-Sec](https://menu-escolar-poble-sec-i62w.vercel.app/), my school-canteen menu PWA (Catalan/Spanish/English) | Mobile (Pixel 7, iPhone 13) | `menu-escolar-chromium`, `-webkit` | 14 functional · 5 visual · 6 a11y | **production, real users**: read-only, 1 worker, no load tests, trackers blocked |
+| **menu-escolar** | [Menú Escolar · Poble-Sec](https://menu-escolar-poble-sec-i62w.vercel.app/), my school-canteen menu PWA (Catalan/Spanish/English) | Mobile (Pixel 7, iPhone 13) | `menu-escolar-chromium`, `-webkit` | 14 functional · 6 visual · 6 a11y | **production, real users**: read-only, 1 worker, no load tests, trackers blocked |
 
 Plus a browser-less `unit` project: AI response parser (6) and framework guards (3).
 
@@ -89,7 +89,7 @@ Screenshots are compared with `toHaveScreenshot`. A menu that changes every day 
 | Today's date (the app opens on "today") | `page.clock.setFixedTime` pins it to Wed 4 Nov 2026, 10:00 Europe/Madrid. Tests override it when needed, e.g. a Saturday. |
 | The menu itself (loaded from `menus/AAAA-MM.js`) | `page.route` serves fixed data from `fixtures/menu-data.ts`, in the app's own format. The app code stays live: that's what is under test. |
 | Animations, caret, web fonts | `animations: 'disabled'`, `caret: 'hide'`, and `document.fonts.ready` awaited before each shot |
-| Genuinely random UI (the weekend toast message) and the cookie banner | `mask` |
+| Genuinely random UI: on a weekend the greeting toast picks one of several messages | `mask`, applied only where the element is on screen (MENU-VIS-006). Masking an element that isn't shown would just hide a strip of real UI. |
 
 ### Why baselines are generated in Docker
 
