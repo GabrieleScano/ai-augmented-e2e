@@ -116,7 +116,7 @@ Known violations are **not hidden**. They are listed in [`tests/shared/a11y-allo
 
 Tolerated violations are attached to the HTML report as annotations.
 
-Real outcome: the first run found three WCAG issues in menu-escolar: the menu-type listbox ARIA structure (three axe rules) and two colour-contrast failures. They were fixed in the app the same day, rule 2 flagged the stale entries, and they were removed. One issue remains documented: the day pills' accessible name does not contain their visible label (WCAG 2.5.3).
+Real outcome: the first run found three WCAG issues in menu-escolar: the menu-type listbox ARIA structure (three axe rules) and two colour-contrast failures. They were fixed in the app the same day, rule 2 flagged the stale entries, and they were removed. Exploratory testing then found a keyboard-focus escape from modal sheets, which was fixed with a regression test in the app. One finding is **accepted by design** and documented as such: axe flags the week-bar day pills under WCAG 2.5.3 (Label in Name) because their name omits the visible abbreviation "DC". The words a voice-control user would actually say are in the name, and adding the abbreviation would make screen readers read out noise. The allowlist records this trade-off, which is the point of having one: a human decision, written down, not a muted rule.
 
 ## Traceability
 
