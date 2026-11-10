@@ -2,7 +2,7 @@ import { test } from '../fixtures/fixtures.js';
 import { users } from '../fixtures/test-data.js';
 
 test.describe('Authentication', () => {
-  test('should log in successfully with valid standard credentials', async ({
+  test('SAUCE-E2E-001 should log in successfully with valid standard credentials', async ({
     loginPage,
     inventoryPage,
   }) => {
@@ -11,7 +11,7 @@ test.describe('Authentication', () => {
     await inventoryPage.expectLoaded();
   });
 
-  test('should block a locked-out user with a clear error', async ({
+  test('SAUCE-E2E-002 should block a locked-out user with a clear error', async ({
     loginPage,
   }) => {
     await loginPage.goto();
@@ -19,7 +19,7 @@ test.describe('Authentication', () => {
     await loginPage.expectError('locked out');
   });
 
-  test('should block direct access to a protected page when not logged in', async ({
+  test('SAUCE-E2E-003 should block direct access to a protected page when not logged in', async ({
     page,
     loginPage,
   }) => {
@@ -30,14 +30,14 @@ test.describe('Authentication', () => {
   // Data-driven: one behaviour ("invalid input is rejected with the right
   // message") exercised across several input combinations.
   const invalidCases = [
-    { name: 'wrong username and password', username: 'ghost_user', password: 'nope', error: 'do not match' },
-    { name: 'missing username', username: '', password: users.standard.password, error: 'Username is required' },
-    { name: 'missing password', username: users.standard.username, password: '', error: 'Password is required' },
-    { name: 'empty form', username: '', password: '', error: 'Username is required' },
+    { id: 'SAUCE-E2E-004', name: 'wrong username and password', username: 'ghost_user', password: 'nope', error: 'do not match' },
+    { id: 'SAUCE-E2E-005', name: 'missing username', username: '', password: users.standard.password, error: 'Username is required' },
+    { id: 'SAUCE-E2E-006', name: 'missing password', username: users.standard.username, password: '', error: 'Password is required' },
+    { id: 'SAUCE-E2E-007', name: 'empty form', username: '', password: '', error: 'Username is required' },
   ];
 
   for (const tc of invalidCases) {
-    test(`should reject login: ${tc.name}`, async ({ loginPage }) => {
+    test(`${tc.id} should reject login: ${tc.name}`, async ({ loginPage }) => {
       await loginPage.goto();
       await loginPage.login(tc.username, tc.password);
       await loginPage.expectError(tc.error);

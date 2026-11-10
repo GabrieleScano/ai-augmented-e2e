@@ -1,10 +1,15 @@
 {
   "name": "ai-augmented-e2e",
   "version": "1.0.0",
-  "description": "End-to-end test framework with Playwright + TypeScript, Page Object Model, CI and an AI-augmented test design module.",
+  "description": "Multi-SUT E2E framework (Playwright + TypeScript): functional, visual-regression and accessibility tests for a demo shop and a production PWA, plus an optional AI test-design module.",
   "type": "module",
   "scripts": {
     "test": "playwright test",
+    "test:unit": "playwright test --project=unit",
+    "test:saucedemo": "playwright test --project=saucedemo-chromium --project=saucedemo-firefox --project=saucedemo-webkit",
+    "test:menu-escolar": "playwright test --project=menu-escolar-chromium --project=menu-escolar-webkit --workers=1",
+    "test:a11y": "playwright test --grep A11Y-",
+    "test:visual:docker": "docker run --rm --ipc=host -v \"$PWD\":/work -v ai-e2e-node-modules:/work/node_modules -w /work mcr.microsoft.com/playwright:v1.61.0-noble /bin/bash -c \"npm ci && npx playwright test --grep VIS- --project=saucedemo-chromium --project=menu-escolar-chromium\"",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
@@ -19,12 +24,17 @@
     "e2e",
     "automation",
     "ai",
-    "testing"
+    "testing",
+    "visual-regression",
+    "accessibility",
+    "axe",
+    "multi-sut"
   ],
   "author": "Gabriele Scano",
   "license": "MIT",
   "devDependencies": {
-    "@playwright/test": "^1.48.0",
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "1.61.0",
     "@types/node": "^22.7.0",
     "allure-playwright": "^3.0.0",
     "test-triage-kit": "github:GabrieleScano/test-triage-kit",

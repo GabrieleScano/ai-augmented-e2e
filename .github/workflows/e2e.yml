@@ -6,10 +6,14 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Weekly run: the suite targets saucedemo.com, which can change without
-    # notice. Catch drift (and refresh the published report) without a push.
+    # Weekly run: both SUTs are live sites that can change without notice.
+    # Catch drift (and refresh the published report) without a push.
     - cron: '0 6 * * 1' # Mondays 06:00 UTC
   workflow_dispatch:
+
+# Every browser job runs inside the official Playwright image, the same one
+# that generates the visual baselines (update-baselines.yml). Keep the tag in
+# sync with @playwright/test in package.json; FW-UNIT-002 enforces it.
 
 jobs:
   unit:
@@ -24,61 +28,88 @@ jobs:
       - run: npm ci
       - name: Type-check
         run: npx tsc --noEmit
-      - name: Unit tests (AI parser)
+      # AI parser + framework guards. No ANTHROPIC_API_KEY anywhere in CI:
+      # the AI module is optional and never called here.
+      - name: Unit tests
         run: npx playwright test --project=unit
 
-  test:
-    name: Playwright (${{ matrix.browser }})
+  saucedemo:
+    name: SauceDemo (${{ matrix.browser }})
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      options: --user 1001
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-
+    env:
+      HOME: /root # Firefox refuses to start when HOME is owned by another user
+      BLOB_NAME: saucedemo-${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps ${{ matrix.browser }}
-
-      - name: Run E2E tests
-        run: npx playwright test --project=${{ matrix.browser }}
-
-      # Classify any failures with test-triage-kit (rule engine + fingerprint
-      # dedup + flaky detection) and publish the verdicts as an artifact.
+      - run: npm ci
+      # chromium also runs the visual (SAUCE-VIS) and accessibility (SAUCE-A11Y) specs.
+      - name: Run SauceDemo tests
+        run: npx playwright test --project=saucedemo-${{ matrix.browser }}
       - name: Triage failures
         if: ${{ !cancelled() }}
         run: npx triage triage-input.json --out triage-output
-
       - name: Upload triage report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: triage-report-${{ matrix.browser }}
+          name: triage-report-saucedemo-${{ matrix.browser }}
           path: triage-output/
           retention-days: 14
-
       - name: Upload blob report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: blob-report-${{ matrix.browser }}
+          name: blob-report-saucedemo-${{ matrix.browser }}
           path: blob-report/
           retention-days: 14
 
-  # Merge the per-browser blob reports into one HTML report and publish it to
+  menu-escolar:
+    # Production app used by families: one job, ONE worker for both projects,
+    # so at most a single browser page talks to it at any time. No load tests,
+    # no writes (enforced in tests/menu-escolar/fixtures/fixtures.ts).
+    name: menu-escolar (mobile Chromium + WebKit)
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      options: --user 1001
+    env:
+      HOME: /root
+      BLOB_NAME: menu-escolar
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Run menu-escolar tests
+        run: npx playwright test --project=menu-escolar-chromium --project=menu-escolar-webkit --workers=1
+      - name: Triage failures
+        if: ${{ !cancelled() }}
+        run: npx triage triage-input.json --out triage-output
+      - name: Upload triage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-report-menu-escolar
+          path: triage-output/
+          retention-days: 14
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-menu-escolar
+          path: blob-report/
+          retention-days: 14
+
+  # Merge the per-job blob reports into one HTML report and publish it to
   # GitHub Pages (main only) so it can be linked as a live report.
   merge-and-deploy:
     name: Merge reports & publish
-    needs: test
+    needs: [saucedemo, menu-escolar]
     if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:

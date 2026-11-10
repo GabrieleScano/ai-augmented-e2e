@@ -22,6 +22,16 @@ const exampleStory: UserStory = {
 };
 
 async function main(): Promise<void> {
+  // The AI module is optional: without a key, say so and exit cleanly instead
+  // of failing. Nothing else in the framework (tests, CI) depends on it.
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.log(
+      'AI test generation is optional and currently disabled: ANTHROPIC_API_KEY is not set.\n' +
+        'To enable it: cp .env.example .env, add your key, then run `npm run ai:generate` again.',
+    );
+    return;
+  }
+
   console.log(`Generating test cases for story ${exampleStory.id}...\n`);
   const result = await generateTestCases(exampleStory);
 

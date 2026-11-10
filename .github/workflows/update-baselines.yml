@@ -1,0 +1,90 @@
+name: Update visual baselines
+
+# Regenerates the toHaveScreenshot baselines in the SAME environment CI
+# compares against: the official Playwright Docker image (Linux, pinned tag).
+# Never generate baselines on a laptop: macOS/Windows font rendering differs.
+#
+# How to run:
+#   - Actions → "Update visual baselines" → Run workflow (pick the branch), or
+#   - push a commit whose message contains [update-baselines].
+# Where the result goes:
+#   - run on a feature branch → baselines are committed to that same branch;
+#   - run on main → baselines go to a new branch visual-baselines/<run id>,
+#     to be reviewed and merged (nothing is ever pushed straight to main).
+
+on:
+  workflow_dispatch:
+    inputs:
+      sut:
+        description: Which SUT to refresh
+        type: choice
+        options: [all, saucedemo, menu-escolar]
+        default: all
+  push:
+    branches-ignore: [main]
+
+jobs:
+  generate:
+    name: Generate baselines (Playwright Docker image)
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[update-baselines]') }}
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.0-noble
+      options: --user 1001
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Regenerate screenshots (visual specs only)
+        run: |
+          case "${{ inputs.sut || 'all' }}" in
+            saucedemo)    PROJECTS="--project=saucedemo-chromium" ;;
+            menu-escolar) PROJECTS="--project=menu-escolar-chromium" ;;
+            *)            PROJECTS="--project=saucedemo-chromium --project=menu-escolar-chromium" ;;
+          esac
+          npx playwright test $PROJECTS --grep "VIS-" --update-snapshots=all --workers=1 --reporter=list
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: tests/**/__screenshots__/
+          if-no-files-found: error
+          retention-days: 7
+
+  commit:
+    name: Commit baselines
+    needs: generate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: visual-baselines
+          path: tests
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/**/__screenshots__/
+          if git diff --cached --quiet; then
+            echo "Baselines unchanged." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            BRANCH="visual-baselines/${GITHUB_RUN_ID}"
+            git switch -c "$BRANCH"
+          else
+            BRANCH="${GITHUB_REF_NAME}"
+          fi
+          git commit -m "test: update visual baselines (Playwright image v1.61.0-noble)"
+          git push origin "HEAD:${BRANCH}"
+          {
+            echo "### Baselines committed to \`${BRANCH}\`"
+            git show --stat --format= HEAD
+            if [ "${GITHUB_REF_NAME}" = "main" ]; then
+              echo
+              echo "Review and merge: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${BRANCH}"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

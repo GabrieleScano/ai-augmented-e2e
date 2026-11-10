@@ -2,7 +2,7 @@ import { test } from '../fixtures/fixtures.js';
 import { products } from '../fixtures/test-data.js';
 
 test.describe('Shopping cart and checkout', () => {
-  test('should complete a purchase end to end', async ({
+  test('SAUCE-E2E-014 should complete a purchase end to end', async ({
     loggedIn,
     checkoutPage,
   }) => {
@@ -17,7 +17,7 @@ test.describe('Shopping cart and checkout', () => {
     await checkoutPage.expectOrderConfirmed();
   });
 
-  test('should reflect multiple items in the cart badge', async ({
+  test('SAUCE-E2E-015 should reflect multiple items in the cart badge', async ({
     loggedIn,
   }) => {
     await loggedIn.addProductToCart(products.backpack.name);
@@ -25,7 +25,7 @@ test.describe('Shopping cart and checkout', () => {
     await loggedIn.expectCartCount(2);
   });
 
-  test('should require customer information before continuing', async ({
+  test('SAUCE-E2E-016 should require customer information before continuing', async ({
     loggedIn,
     checkoutPage,
   }) => {
