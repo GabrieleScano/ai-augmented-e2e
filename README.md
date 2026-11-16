@@ -89,7 +89,7 @@ Screenshots are compared with `toHaveScreenshot`. A menu that changes every day 
 | Today's date (the app opens on "today") | `page.clock.setFixedTime` pins it to Wed 4 Nov 2026, 10:00 Europe/Madrid. Tests override it when needed, e.g. a Saturday. |
 | The menu itself (loaded from `menus/AAAA-MM.js`) | `page.route` serves fixed data from `fixtures/menu-data.ts`, in the app's own format. The app code stays live: that's what is under test. |
 | Animations, caret, web fonts | `animations: 'disabled'`, `caret: 'hide'`, and `document.fonts.ready` awaited before each shot |
-| Genuinely random UI: on a weekend the greeting toast picks one of several messages | `mask`, applied only where the element is on screen (MENU-VIS-006). Masking an element that isn't shown would just hide a strip of real UI. |
+| Random UI: on a weekend the greeting toast picks one of several messages with `Math.random()` | `Math.random` is pinned with `addInitScript` (MENU-VIS-006). The messages have different lengths and wrap to one or two lines, so a `mask` would hide the text but not the change in height. |
 
 ### Why baselines are generated in Docker
 
