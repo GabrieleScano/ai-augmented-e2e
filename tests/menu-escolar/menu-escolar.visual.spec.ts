@@ -8,8 +8,9 @@ import { onlyInBaselineEnvironment } from '../shared/visual.js';
  *  - clock pinned (fixtures.ts), so "today", the week bar and the calendar never move;
  *  - menu data mocked via page.route (menu-data.ts), so dishes never change;
  *  - animations disabled and web fonts awaited before each shot;
- *  - what still varies is masked, and only where it is actually on screen:
- *    on a weekend the toast shows one of several random messages (MENU-VIS-006).
+ *  - Math.random pinned where the app uses it: on a weekend the toast picks one
+ *    of several greetings of different lengths, so it wraps to one or two lines
+ *    (MENU-VIS-006). A mask would not help: it hides the text, not the height.
  *
  * Baselines: tests/menu-escolar/__screenshots__/, generated in the official
  * Playwright Docker image (see README).
@@ -59,12 +60,17 @@ test.describe('Visual regression', () => {
   test.describe('on a weekend', () => {
     test.use({ today: '2026-11-07T10:00:00+01:00' }); // Saturday
 
-    test('MENU-VIS-006 weekend home, random greeting masked', async ({ menu, page }) => {
+    test('MENU-VIS-006 weekend home, greeting pinned', async ({ menu, page }) => {
+      // The app picks the greeting with Math.random() (its only use). Messages have
+      // different lengths, so the toast is one or two lines tall: pin the choice to
+      // the first message, which also lets the toast itself be compared.
+      await page.addInitScript(() => {
+        Math.random = () => 0;
+      });
       await menu.goto();
       await expect(menu.weekendToast).toBeVisible();
       await menu.settle();
-      // The greeting is picked with Math.random(): mask the text, keep the rest of the screen.
-      await expect(page).toHaveScreenshot('home-weekend.png', { mask: [menu.weekendToast] });
+      await expect(page).toHaveScreenshot('home-weekend.png');
     });
   });
 });
